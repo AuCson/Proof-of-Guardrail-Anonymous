@@ -1,6 +1,6 @@
 # Proof-of-Guardrail in AI Agents with Trusted Execution Environments
 
-We enable a human or agent chatting with a remote OpenClaw agent to request a cryptographic proof that the remote agent is indeed running behind some known guardrail. The repository demonstrates deployment of a contet safety guardrail, fact checker, and an OpenClaw agent in a cloud TEE. Users can directly request attestation through the chat interface.
+We enable a human or agent chatting with a remote OpenClaw agent to request a cryptographic proof that the remote agent is indeed running behind some known guardrail. The repository demonstrates deployment of a content safety guardrail, a fact checker, and an OpenClaw agent in a cloud TEE. Users can directly request attestation through the chat interface.
 
 ![attestation_request_via_chat](assets/telegram_screenshot.png)
 
