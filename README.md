@@ -8,6 +8,10 @@ We enable a human or agent chatting with a remote OpenClaw agent to request a cr
 
 
 
+https://github.com/user-attachments/assets/2852461a-e015-4b6d-a642-77ec265679e4
+
+
+
 ## System overview
 
 **Disclaimer: this version of the demo is for demonstrative purposes only.**
