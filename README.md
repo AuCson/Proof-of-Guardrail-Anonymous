@@ -1,6 +1,6 @@
 # Proof-of-Guardrail in AI Agents with Trusted Execution Environments
 
-We enable a human or agent chatting with a remote OpenClaw agent to request a cryptographic proof that the remote agent is indeed running behind some known guardrail. The repository demonstrates deployment of a simple guardrail and OpenClaw agent in a cloud TEE. For demonstrative purposes only, users can directly request attestation through the chat interface.
+We enable a human or agent chatting with a remote OpenClaw agent to request a cryptographic proof that the remote agent is indeed running behind some known guardrail. The repository demonstrates deployment of a contet safety guardrail, fact checker, and an OpenClaw agent in a cloud TEE. Users can directly request attestation through the chat interface.
 
 ![attestation_request_via_chat](assets/telegram_screenshot.png)
 
@@ -14,12 +14,12 @@ https://github.com/user-attachments/assets/2852461a-e015-4b6d-a642-77ec265679e4
 
 ## System overview
 
-**Disclaimer: this version of the demo is for demonstrative purposes only.**
-
+**Disclaimer: this implementation is for demonstrative purposes only**. This code base did not implement:
+- Disabling openclaw Web UI, so that OpenClaw configs are read only after launch.
+- Restricting code execution capability inside the enclave
 
 We achieve verifiable guardrails by running it inside an AWS Nitro Enclave and using remote attestation to prove exactly what guardrail code is protecting the agent (a stable PCR2 measurement). All LLM traffic is forced through a FastAPI-based interception proxy (integrated with the guardrail); Verifiers can then check the attestation (PCRs plus embedded agent metadata/hashes) before trusting the agent or serving it data.
 
-Please note the attestation cannot ensure the agent to be 100% “safe” (the guardrail code could still have vulnerabilities, and the LLM guardrail can make mistakes), but it ensures the promised guardrail code is actually running.
 
 ## Quickstart
 
@@ -78,7 +78,7 @@ SERPER_API_KEY=YOUR_SERPER_API_KEY # for fact check
 
 During launch, OpenClaw will be configured so that all LLM calls passes through a guardrail proxy server running locally inside the enclave. It will also launch an attestation server, and register `attestation` as a skill of the OpenClaw agent.
 
-In the future, the guardrail will maintain a allowlist of acceptable builds of the agent. In addition, during the enclave boot, we will disable arbitary command execution of Openclaw inside the enclave.
+In the future, the guardrail will maintain an allowlist of acceptable builds of the agent. In addition, during the enclave boot, we will disable arbitary command execution of Openclaw inside the enclave.
 
 5. The OpenClaw gateway should be accessible from EC2 on ws://127.0.0.1:18789. Run SSH port forwarding from your local computer, open the web client in a broswer, and request attestation in the chat.
 
@@ -91,9 +91,6 @@ A valid attestation proves:
 - The message was processed inside a genuine AWS Nitro Enclave (cryptographic signature verified)
 - The exact guardrail code you trust is running (PCR2 matches your known measurement)
 
-To further ensure response authenticity, you can ask the agent to include their response in the attestation quote in the chat. 
-
-**Caution.** To ensure the entire communication is untampered, end-to-end encryption between user and the agent running in the enclave is needed [(example)](https://github.com/SaharaLabsAI/x-function/tree/main/verifiable). This is not implemented yet in this demo.
 
 ## System architecture
 
@@ -136,7 +133,7 @@ To further ensure response authenticity, you can ask the agent to include their 
 │  └──────────────────────────────────────────────────────────────────────────┘    │
 │                                                                                  │
 │  ┌──────────────────────────────────────────────────────────────────────────┐    │
-│  │  Openclaw INJECTION (inject_moltbot.sh)                                  │    │
+│  │  Openclaw INJECTION (inject_openclaw.sh)                                 │    │
 │  │  - Downloads from npm: clawdbot@version                                  │    │
 │  │  - Sends tarball via vsock:9000 with API key                             │    │
 │  │  - Caching for fast subsequent injections                                │    │
