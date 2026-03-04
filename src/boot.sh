@@ -1,5 +1,5 @@
 #!/bin/bash
-# boot_vsock.sh - Enclave boot script with vsock agent injection
+# boot.sh - Enclave boot script with vsock agent injection
 #
 # This script runs inside the Nitro Enclave and:
 # 1. Starts the guardrail proxy
