@@ -20,7 +20,7 @@ echo ""
 # Step 0: Configure loopback interface
 # ============================================================================
 
-echo "[0/5] Configuring loopback interface..."
+echo "[0/6] Configuring loopback interface..."
 
 # Bring up loopback interface (required for localhost communication)
 if ip link set lo up 2>&1; then
@@ -42,7 +42,7 @@ echo ""
 # Step 0.5: Remount /tmp with exec permissions
 # ============================================================================
 
-echo "[0.5/5] Remounting /tmp with exec permissions..."
+echo "[0.5/6] Remounting /tmp with exec permissions..."
 
 # Try to remount /tmp without noexec (needed for loading native .node modules)
 set +e  # Don't exit on error
@@ -61,7 +61,7 @@ echo ""
 # Step 1: Configure network isolation (CRITICAL!)
 # ============================================================================
 
-echo "[1/5] Configuring network isolation..."
+echo "[1/6] Configuring network isolation..."
 
 # Block all outbound network except localhost
 # This prevents OpenClaw from bypassing the guardrail proxy
@@ -97,7 +97,7 @@ echo ""
 # Step 1.5: Start local HTTP proxy (for outbound internet access)
 # ============================================================================
 
-echo "[1.5/5] Starting local HTTP proxy..."
+echo "[1.5/6] Starting local HTTP proxy..."
 cd /guardrail
 
 # Start local HTTP proxy that forwards to parent via vsock
@@ -308,7 +308,7 @@ echo ""
 # Step 4: Install OpenClaw
 # ============================================================================
 
-echo "[4/5] Installing OpenClaw from received tarball..."
+echo "[4/6] Installing OpenClaw from received tarball..."
 
 # Extract bundled tarball (contains node_modules with all dependencies)
 echo "  Extracting bundled package..."
@@ -370,7 +370,7 @@ echo ""
 # Step 5: Configure and start OpenClaw
 # ============================================================================
 
-echo "[5/5] Configuring OpenClaw to use guardrail proxy..."
+echo "[5/6] Configuring OpenClaw to use guardrail proxy..."
 
 # Create OpenClaw config directory
 mkdir -p ~/.openclaw
