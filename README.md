@@ -14,9 +14,7 @@ https://github.com/user-attachments/assets/2852461a-e015-4b6d-a642-77ec265679e4
 
 ## System overview
 
-**Disclaimer: this implementation is for demonstrative purposes only**. This code base did not implement:
-- Disabling openclaw Web UI, so that OpenClaw configs are read only after launch.
-- Restricting code execution capability inside the enclave
+⚠️ **This is a proof-of-concept implementation for research and demonstration purposes. It is not production-ready.** See the [Limitations](#limitations) section for details.
 
 We achieve verifiable guardrails by running it inside an AWS Nitro Enclave and using remote attestation to prove exactly what guardrail code is protecting the agent (a stable PCR2 measurement). All LLM traffic is forced through a FastAPI-based interception proxy (integrated with the guardrail); Verifiers can then check the attestation (PCRs plus embedded agent metadata/hashes) before trusting the agent or serving it data.
 
@@ -59,7 +57,7 @@ echo "Enclave running on CID: $ENCLAVE_CID"
 # Note: when debug mode is ON, the PCR2 in the attestation quote later will be all-zero.
 nitro-cli console --enclave-id $ENCLAVE_CID
 
-# to clean-up
+# to shut down
 # nitro-cli terminate-enclave --enclave-id ${ENCLAVE_ID}
 
 ```
@@ -74,6 +72,9 @@ OPENROUTER_API_KEY=YOUR_OPERROUTER_API_KEY # for Llama Guard 3
 SERPER_API_KEY=YOUR_SERPER_API_KEY # for fact check
 
 ./ec2_setup.sh
+
+# to clean up
+./ec2_cleanup.sh
 ```
 
 During launch, OpenClaw will be configured so that all LLM calls passes through a guardrail proxy server running locally inside the enclave. It will also launch an attestation server, and register `attestation` as a skill of the OpenClaw agent.
@@ -204,3 +205,19 @@ A valid attestation proves:
 
 
 ```
+
+
+## Limitations
+
+This implementation is for **demonstrative purposes only** and has the following known limitations:
+
+### Agent Security Constraints
+- The OpenClaw configuration interface remains accessible, allowing potential runtime configuration changes that are not reflected in PCR measurements.
+- The enclave does not currently restrict arbitrary command execution capabilities of OpenClaw, which could potentially be used to bypass guardrails.
+
+### Recommended Improvements for Production Use
+- Pin all dependencies (Docker base image digest, system package versions, Python package versions)
+- Implement read-only configuration enforcement for OpenClaw
+- Restrict or disable code execution capabilities inside the enclave
+- Establish a trusted build pipeline with published PCR baselines
+- Implement certificate pinning for critical API endpoints
