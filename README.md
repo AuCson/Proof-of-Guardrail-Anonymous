@@ -4,13 +4,13 @@ We enable a human or agent chatting with a remote OpenClaw agent to request a cr
 
 ![attestation_request_via_chat](assets/telegram_screenshot.png)
 
-## Demo video: Proving that a response is generated after a guardrail
+## Demo video 1: Application example: proof of fact check for a remotely deployed finance agent
 
+https://github.com/user-attachments/assets/977614d1-4857-4d14-bb17-d064dadb3b0d
 
+## Demo video 2: Technical example: obtaining and verifying attestations
 
 https://github.com/user-attachments/assets/2852461a-e015-4b6d-a642-77ec265679e4
-
-
 
 ## System overview
 
