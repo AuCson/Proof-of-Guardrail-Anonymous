@@ -18,6 +18,11 @@ https://github.com/user-attachments/assets/2852461a-e015-4b6d-a642-77ec265679e4
 
 We achieve verifiable guardrails by running it inside an AWS Nitro Enclave and using remote attestation to prove exactly what guardrail code is protecting the agent (a stable PCR2 measurement). All LLM traffic is forced through a FastAPI-based interception proxy (integrated with the guardrail); Verifiers can then check the attestation (PCRs plus embedded agent metadata/hashes) before trusting the agent or serving it data.
 
+### Guardrails
+
+- Content safety guardrail: Llama Guard 3-8B through [OpenRouter API](https://openrouter.ai/meta-llama/llama-guard-3-8b)
+- Fact checking guardrail:  [Libr-AI/OpenFactVerification](https://github.com/Libr-AI/OpenFactVerification)
+
 
 ## Quickstart
 
@@ -93,6 +98,7 @@ A valid attestation proves:
 - The exact guardrail code you trust is running (PCR2 matches your known measurement)
 
 
+
 ## System architecture
 
 ```
@@ -100,29 +106,12 @@ A valid attestation proves:
 │                       VERIFIABLE LLM AGENT GUARDRAIL SYSTEM                      │
 │                   (AWS Nitro Enclave + Openclaw + Guardrail)                     │
 └──────────────────────────────────────────────────────────────────────────────────┘
-
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│                            CLIENT LAYER (Untrusted)                              │
-├──────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                  │
-│  ┌─────────────────┐  ┌──────────────────┐  ┌─────────────────────────────┐      │
-│  │  OpenClaw CLI   │  │ Openclaw Desktop │  │  Custom API Clients         │      │
-│  │                 │  │                  │  │  (SDK Integration)          │      │
-│  └────────┬────────┘  └────────┬─────────┘  └──────────────┬──────────────┘      │
-│           │                    │                            │                    │
-│           └────────────────────┴────────────────────────────┘                    │
-│                                 │                                                │
-│                        ws://<EC2_PUBLIC_IP>:18789                                │
-└─────────────────────────────────┼────────────────────────────────────────────────┘
-                                  │
-                                  │ Internet
-                                  ↓
 ┌──────────────────────────────────────────────────────────────────────────────────┐
 │                      PARENT EC2 INSTANCE - Untrusted                             │
 ├──────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │  ┌──────────────────────────────────────────────────────────────────────────┐    │
-│  │  Vsock Proxy: 0.0.0.0:18789 → vsock://16:18789                           │    │
+│  │  Vsock Proxy: 0.0.0.0:18789 → vsock://xx:18789                           │    │
 │  │  - Exposes Openclaw gateway to internet                                  │    │ 
 │  │  - WebSocket forwarding                                                  │    │
 │  └──────────────────────────────────────────────────────────────────────────┘    │
@@ -135,10 +124,8 @@ A valid attestation proves:
 │                                                                                  │
 │  ┌──────────────────────────────────────────────────────────────────────────┐    │
 │  │  Openclaw INJECTION (inject_openclaw.sh)                                 │    │
-│  │  - Downloads from npm: clawdbot@version                                  │    │
+│  │  - Downloads from npm: openclaw@version                                  │    │
 │  │  - Sends tarball via vsock:9000 with API key                             │    │
-│  │  - Caching for fast subsequent injections                                │    │
-│  │  - PCR2 stable across openclaw version updates                           │    │
 │  └──────────────────────────────────────────────────────────────────────────┘    │
 │                                                                                  │
 └───────────────────────────┬────────────────────────┬─────────────────────────────┘
@@ -162,12 +149,10 @@ A valid attestation proves:
 │  │  ╔══════════════════════════════════════════════════════════════════╗    │    │
 │  │  ║  GUARDRAILS ENGINE                                               ║    │    │
 │  │  ║                                                                  ║    │    │
-│  │  ║  • Input/output validation                                       ║    │    │
+│  │  ║  • Safety directive prompt injection                             ║    │    │
 │  │  ║  • Content safety checks                                         ║    │    │
-│  │  ║  • Audit logging                                                 ║    │    │
-│  │  ║  • Policy enforcement                                            ║    │    │
+│  │  ║  • Factuality check                                              ║    │    │
 │  │  ║                                                                  ║    │    │
-│  │  ║  (Runs Llama Guard 3 by default)                                 ║    │    │
 │  │  ╚══════════════════════════════════════════════════════════════════╝    │    │
 │  └───────────────────────────────────┬──────────────────────────────────────┘    │
 │                                      │                                           │
@@ -176,7 +161,6 @@ A valid attestation proves:
 │  ┌──────────────────────────────────────────────────────────────────────────┐    │
 │  │  OPENCLAW GATEWAY (ws://0.0.0.0:18789) [INJECTED - NOT IN PCR2]          │    │
 │  │  - AI agent framework with tool/skill support                            │    │
-│  │  - Configured with OPENAI_BASE_URL=http://localhost:8080                 │    │
 │  │  - Version swappable without PCR2 change                                 │    │
 │  │  - Future versions will block arbitrary command execs                    │    │
 │  └──────────────────────────────────────────────────────────────────────────┘    │
@@ -202,6 +186,7 @@ A valid attestation proves:
 │  4. Verify guardrail policy                                                      │
 │  5. Trust that agent cannot bypass verified guardrails                           │
 └──────────────────────────────────────────────────────────────────────────────────┘
+
 
 
 ```
